@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { HttpExceptionFilter } from './shared/filters/http-exception.filter';
+import { WsAdapter } from '@nestjs/websockets';
 
 declare const module: any;
 
@@ -42,6 +43,8 @@ async function bootstrap() {
 
     app.setGlobalPrefix('api');
     app.useGlobalFilters(new HttpExceptionFilter());
+
+    app.useWebSocketAdapter(new WsAdapter(app.getHttpServer()));
 
     await app.listen(AppModule.port);
 }

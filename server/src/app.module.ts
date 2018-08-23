@@ -1,3 +1,4 @@
+import { EventsGateway } from './shared/events/events.gateway';
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AppController } from './app.controller';
@@ -21,7 +22,8 @@ export class AppModule {
     static port: number | string;
     static isDev: boolean;
 
-    constructor(private readonly _configurationService: ConfigurationService) {
+    constructor(private readonly _configurationService: ConfigurationService,
+                events: EventsGateway) {
         AppModule.port = AppModule.normalizePort(_configurationService.get(Configuration.PORT));
         AppModule.host = _configurationService.get(Configuration.HOST);
         AppModule.isDev = _configurationService.isDevelopment;
