@@ -11,14 +11,21 @@ import {
 import { SubscribeMessageWithAck } from 'nestjs-socket-handlers-with-ack';
 import { Observable, from } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { Logger } from '@nestjs/common';
+import { RequestTracker } from './request-tracker.service';
 
 @WebSocketGateway()
-export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
+export class ProxyOpenhabGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
     @WebSocketServer() server;
+
+    constructor(
+        private requestTracker: RequestTracker,
+        private logger: Logger) {
+    }
 
     @SubscribeMessage('events')
     async message(client: any, num: number): Promise<boolean> {
-        console.log(num);
+        this.logger.log('Received ' + num);
         if (isNaN(num)) {
             throw new Error('Wrong number received');
         }
@@ -64,11 +71,11 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
         console.log('websockets initialized');
     }
 
-    handleConnection(req) {
+    handleConnection(client) {
         console.log('connect');
     }
 
-    handleDisconnect(req) {
+    handleDisconnect(client) {
         console.log('disconnect');
     }
 }
