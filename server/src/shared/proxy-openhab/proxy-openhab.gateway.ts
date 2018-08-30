@@ -18,14 +18,9 @@ import { RequestTracker } from './request-tracker.service';
 export class ProxyOpenhabGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
     @WebSocketServer() server;
 
-    constructor(
-        private requestTracker: RequestTracker,
-        private logger: Logger) {
-    }
-
     @SubscribeMessage('events')
     async message(client: any, num: number): Promise<boolean> {
-        this.logger.log('Received ' + num);
+        // this.logger.log('Received ' + num);
         if (isNaN(num)) {
             throw new Error('Wrong number received');
         }

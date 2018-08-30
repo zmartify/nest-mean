@@ -45,7 +45,7 @@ export class OpenhabController {
     @ApiOperation(GetOperationId(Openhab.modelName, 'Create'))
     async create(@Body() params: OpenhabParams): Promise<OpenhabVm> {
         try {
-            const newOpenhab = await this._openhabService.createTodo(params);
+            const newOpenhab = await this._openhabService.createOpenhab(params);
             return this._openhabService.map<OpenhabVm>(newOpenhab);
         } catch (e) {
             throw new HttpException(e, HttpStatus.INTERNAL_SERVER_ERROR);

@@ -1,6 +1,7 @@
-import { InstanceType, ModelType, pre, prop, Typegoose } from 'typegoose';
+import { InstanceType, ModelType, pre, prop, Typegoose, Ref } from 'typegoose';
 import { schemaOptions } from 'shared/base.model';
 import { OpenhabStatus } from './openhab-status.enum';
+import { User } from 'user/models/user.model';
 
 @pre<Openhab>('findOneAndUpdate', function(next) {
     this._update.updatedAt = new Date(Date.now());
@@ -20,7 +21,8 @@ export class Openhab extends Typegoose {
     secret: string;                         // openHAB generated secret
     @prop()
     config: {};                             // openhab.cfg
-    account: {};                      // An account openHAB belongs to
+    @prop({ ref: User, index: true })
+    user?: Ref<User>;                      // An account openHAB belongs to
     @prop()
     openhabVersion: string;                 // openHAB version
     @prop()

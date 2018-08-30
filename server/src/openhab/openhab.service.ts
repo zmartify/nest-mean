@@ -17,7 +17,7 @@ export class OpenhabService extends BaseService<Openhab> {
         this._mapper = _mapperService.mapper;
     }
 
-    async createTodo(params: OpenhabParams): Promise<Openhab> {
+    async createOpenhab(params: OpenhabParams): Promise<Openhab> {
         const { content, level } = params;
 
         const newOpenhab = new OpenhabModel();
