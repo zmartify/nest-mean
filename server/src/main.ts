@@ -41,7 +41,7 @@ async function bootstrap() {
         module.hot.dispose(() => app.close());
     }
 
-    app.setGlobalPrefix('api');
+    // app.setGlobalPrefix('api');
     app.useGlobalFilters(new HttpExceptionFilter());
 
     app.useWebSocketAdapter(new WsAdapter(app.getHttpServer()));

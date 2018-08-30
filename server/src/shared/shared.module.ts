@@ -4,13 +4,13 @@ import { AuthService } from './auth/auth.service';
 import { JwtStrategy } from './auth/strategies/jwt-strategy.service';
 import { ConfigurationService } from './configuration/configuration.service';
 import { MapperService } from './mapper/mapper.service';
-import { ProxyOpenhabGateway } from './proxy-openhab/proxy-openhab.gateway';
+import { ProxyOpenhabModule } from './proxy-openhab/proxy-openhab.module';
 
 @Global()
 @Module({
-    providers: [ConfigurationService, MapperService, AuthService, JwtStrategy, ProxyOpenhabGateway],
-    exports: [ConfigurationService, MapperService, AuthService, ProxyOpenhabGateway],
-    imports: [UserModule],
+    providers: [ConfigurationService, MapperService, AuthService, JwtStrategy],
+    exports: [ConfigurationService, MapperService, AuthService],
+    imports: [UserModule, ProxyOpenhabModule],
 })
 
 export class SharedModule {

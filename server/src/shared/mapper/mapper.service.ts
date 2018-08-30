@@ -22,6 +22,6 @@ export class MapperService {
 
         config.createMap('Todo', 'TodoVm').forSourceMember('_id', opts => opts.ignore());
 
-        // config.createMap('ProxyOpenhab', 'ProxyOpenhabVm').forSourceMember('_id', opts => opts.ignore());
+        config.createMap('Openhab', 'OpenhabVm').forSourceMember('_id', opts => opts.ignore());
         }
 }

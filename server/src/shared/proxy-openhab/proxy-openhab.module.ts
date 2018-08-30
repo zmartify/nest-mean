@@ -1,10 +1,12 @@
-import { MongooseModule } from "@nestjs/mongoose";
-import { Module } from "@nestjs/common";
+import { MongooseModule } from '@nestjs/mongoose';
+import { Module } from '@nestjs/common';
+import { ProxyOpenhabController } from './proxy-openhab.controller';
+import { ProxyOpenhabGateway } from './proxy-openhab.gateway';
+import { RequestTracker } from './request-tracker.service';
 
 @Module({
-    imports: [MongooseModule.forFeature([{ name: ProxyOpenhab.modelName, schema: ProxyOpenhab.model.schema }])],
     controllers: [ProxyOpenhabController],
-    providers: [ProxyOpenhabService],
+    providers: [ProxyOpenhabGateway, RequestTracker],
 })
-export class TodoModule {
+export class ProxyOpenhabModule {
 }

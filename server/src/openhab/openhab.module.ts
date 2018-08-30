@@ -9,5 +9,5 @@ import { OpenhabService } from './openhab.service';
     controllers: [OpenhabController],
     providers: [OpenhabService],
 })
-export class TodoModule {
+export class OpenhabModule {
 }
