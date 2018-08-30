@@ -17,7 +17,11 @@ import { RequestTracker } from './request-tracker.service';
 @WebSocketGateway()
 export class ProxyOpenhabGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
     @WebSocketServer() server;
+/*
+    constructor(requestTracker: RequestTracker) {
 
+    }
+*/
     @SubscribeMessage('events')
     async message(client: any, num: number): Promise<boolean> {
         // this.logger.log('Received ' + num);
