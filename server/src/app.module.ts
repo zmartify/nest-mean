@@ -8,12 +8,13 @@ import { SharedModule } from './shared/shared.module';
 import { TodoModule } from './todo/todo.module';
 import { UserModule } from './user/user.module';
 import { OpenhabModule } from 'openhab/openhab.module';
+import { AccountModule } from 'account/account.module';
 
 @Module({
     imports: [SharedModule, MongooseModule.forRoot(ConfigurationService.connectionString, {
         retryDelay: 500,
         retryAttempts: 3,
-    }), UserModule, TodoModule, OpenhabModule],
+    }), UserModule, TodoModule, OpenhabModule, AccountModule],
     controllers: [AppController],
     providers: [AppService],
 })

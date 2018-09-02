@@ -80,8 +80,8 @@ export class OpenhabController {
         }
 
         try {
-            const todos = await this._openhabService.findAll(filter);
-            return this._openhabService.map<OpenhabVm[]>(map(todos, todo => todo.toJSON()));
+            const openhabs = await this._openhabService.findAll(filter);
+            return this._openhabService.map<OpenhabVm[]>(map(openhabs, openhab => openhab.toJSON()));
         } catch (e) {
             throw new HttpException(e, HttpStatus.INTERNAL_SERVER_ERROR);
         }

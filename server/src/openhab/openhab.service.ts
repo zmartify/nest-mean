@@ -18,7 +18,7 @@ export class OpenhabService extends BaseService<Openhab> {
     }
 
     async createOpenhab(params: OpenhabParams): Promise<Openhab> {
-        const { content, level } = params;
+        const { name, level } = params;
 
         const newOpenhab = new OpenhabModel();
 

@@ -20,6 +20,8 @@ export class MapperService {
             .forSourceMember('_id', opts => opts.ignored())
             .forSourceMember('password', opts => opts.ignore());
 
+        config.createMap('Account', 'AccountVm').forSourceMember('_id', opts => opts.ignore());
+
         config.createMap('Todo', 'TodoVm').forSourceMember('_id', opts => opts.ignore());
 
         config.createMap('Openhab', 'OpenhabVm').forSourceMember('_id', opts => opts.ignore());
