@@ -3,34 +3,39 @@ import { InjectModel } from '@nestjs/mongoose';
 import { ModelType } from 'typegoose';
 import { BaseService } from 'shared/base.service';
 import { MapperService } from 'shared/mapper/mapper.service';
-import { Account, AccountModel } from './models/event';
-import { AccountParams } from './models/view-models/account-params.model';
+import { Event, EventModel } from './models/event';
+import { EventParams } from './models/view-models/event-params.model';
 
 @Injectable()
-export class AccountService extends BaseService<Account> {
+export class EventService extends BaseService<Event> {
     constructor(
-        @InjectModel(Account.modelName) private readonly _todoModel: ModelType<Account>,
+        @InjectModel(Event.modelName) private readonly _eventModel: ModelType<Event>,
         private readonly _mapperService: MapperService,
     ) {
         super();
-        this._model = _todoModel;
+        this._model = _eventModel;
         this._mapper = _mapperService.mapper;
     }
 
-    async createAccount(params: AccountParams): Promise<Account> {
-        const { name, level } = params;
+    async createEvent(params: EventParams): Promise<Event> {
+        const { openhab, source, status, numericStatus, color } = params;
 
-        const newAccount = new AccountModel();
+        const newEvent = new EventModel();
 
-        newAccount.name = name;
+        newEvent.openhab = openhab;
+        newEvent.source = source;
 
-        if (level) {
-            newAccount.level = level;
+        if (status) {
+            newEvent.status = status;
+        }
+
+        if (numericStatus) {
+            newEvent.numericStatus = numericStatus;
         }
 
         try {
-            const result = await this.create(newAccount);
-            return result.toJSON() as Account;
+            const result = await this.create(newEvent);
+            return result.toJSON() as Event;
         } catch (e) {
             throw new InternalServerErrorException(e);
         }

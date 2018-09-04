@@ -25,98 +25,70 @@ import { ApiException } from 'shared/api-exception.model';
 import { ToBooleanPipe } from 'shared/pipes/to-boolean.pipe';
 import { EnumToArray } from 'shared/utilities/enum-to-array.helper';
 import { GetOperationId } from 'shared/utilities/get-operation-id.helper';
-import { AccountLevel } from './models/account-level.enum';
-import { Account } from './models/event';
-import { AccountParams } from './models/view-models/account-params.model';
-import { AccountVm } from './models/view-models/account-vm.model';
-import { AccountService } from './event.service';
+import { EventVm } from './models/view-models/event-vm.model';
+import { EventService } from './event.service';
+import { Ref } from 'typegoose';
+import { Openhab } from 'openhab/models/openhab.model';
+import { EventParams } from './models/view-models/event-params.model';
+import { Event } from './models/event';
 
 @Controller('accounts')
-@ApiUseTags(Account.modelName)
+@ApiUseTags(Event.modelName)
 @ApiBearerAuth()
-export class AccountController {
-    constructor(private readonly _todoService: AccountService) {}
+export class EventController {
+    constructor(private readonly _eventService: EventService) { }
 
     @Post()
     // @Roles(UserRole.Admin)
     // @UseGuards(AuthGuard('jwt'), RolesGuard)
-    @ApiCreatedResponse({ type: AccountVm })
+    @ApiCreatedResponse({ type: EventVm })
     @ApiBadRequestResponse({ type: ApiException })
-    @ApiOperation(GetOperationId(Account.modelName, 'Create'))
-    async create(@Body() params: AccountParams): Promise<AccountVm> {
+    @ApiOperation(GetOperationId(Event.modelName, 'Create'))
+    async create(@Body() params: EventParams): Promise<EventVm> {
         try {
-            const newAccount = await this._todoService.createAccount(params);
-            return this._todoService.map<AccountVm>(newAccount);
+            const newEvent = await this._eventService.createEvent(params);
+            return this._eventService.map<EventVm>(newEvent);
         } catch (e) {
             throw new HttpException(e, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    @Get()
-    // @Roles(UserRole.Admin, UserRole.User)
-    // @UseGuards(AuthGuard('jwt'), RolesGuard)
-    @ApiOkResponse({ type: AccountVm, isArray: true })
-    @ApiBadRequestResponse({ type: ApiException })
-    @ApiOperation(GetOperationId(Account.modelName, 'GetAll'))
-    @ApiImplicitQuery({ name: 'level', enum: EnumToArray(AccountLevel), required: false, isArray: true })
-    @ApiImplicitQuery({ name: 'isActive', required: false })
-    async get(
-        @Query('level') level?: AccountLevel,
-        @Query('isActive', new ToBooleanPipe())
-            isActive?: boolean,
-    ): Promise<AccountVm[]> {
-        let filter = {};
 
-        if (level) {
-            filter['level'] = { $in: isArray(level) ? [...level] : [level] };
-        }
-
-        if (isActive !== null) {
-            if (filter['level']) {
-                filter = { $and: [{ level: filter['level'] }, { isActive }] };
-            } else {
-                filter['isCompleted'] = isActive;
-            }
-        }
-
-        try {
-            const todos = await this._todoService.findAll(filter);
-            return this._todoService.map<AccountVm[]>(map(todos, todo => todo.toJSON()));
-        } catch (e) {
-            throw new HttpException(e, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
 
     @Put()
     // @Roles(UserRole.Admin, UserRole.User)
     // @UseGuards(AuthGuard('jwt'), RolesGuard)
-    @ApiOkResponse({ type: AccountVm })
+    @ApiOkResponse({ type: EventVm })
     @ApiBadRequestResponse({ type: ApiException })
-    @ApiOperation(GetOperationId(Account.modelName, 'Update'))
-    async update(@Body() vm: AccountVm): Promise<AccountVm> {
-        const { id, name, level, isActive } = vm;
+    @ApiOperation(GetOperationId(Event.modelName, 'Update'))
+    async update(@Body() vm: EventVm): Promise<EventVm> {
+        const { id, status, numericStatus, color } = vm;
 
         if (!vm || !id) {
             throw new HttpException('Missing parameters', HttpStatus.BAD_REQUEST);
         }
 
-        const exist = await this._todoService.findById(id);
+        const exist = await this._eventService.findById(id);
 
         if (!exist) {
             throw new HttpException(`${id} Not found`, HttpStatus.NOT_FOUND);
         }
 
-        if (exist.isActive) {
-            throw new HttpException('Already completed', HttpStatus.BAD_REQUEST);
+        if (status) {
+            exist.oldStatus = exist.status;
+            exist.status = status;
         }
 
-        exist.name = name;
-        exist.isActive = isActive;
-        exist.level = level;
+        if (numericStatus) {
+            exist.oldNumericStatus = exist.numericStatus;
+            exist.numericStatus = numericStatus;
+        }
+
+        if (color) exist.color = color;
 
         try {
-            const updated = await this._todoService.update(id, exist);
-            return this._todoService.map<AccountVm>(updated.toJSON());
+            const updated = await this._eventService.update(id, exist);
+            return this._eventService.map<EventVm>(updated.toJSON());
         } catch (e) {
             throw new HttpException(e, HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -125,13 +97,13 @@ export class AccountController {
     @Delete(':id')
     // @Roles(UserRole.Admin)
     // @UseGuards(AuthGuard('jwt'), RolesGuard)
-    @ApiOkResponse({ type: AccountVm })
+    @ApiOkResponse({ type: EventVm })
     @ApiBadRequestResponse({ type: ApiException })
-    @ApiOperation(GetOperationId(Account.modelName, 'Delete'))
-    async delete(@Param('id') id: string): Promise<AccountVm> {
+    @ApiOperation(GetOperationId(Event.modelName, 'Delete'))
+    async delete(@Param('id') id: string): Promise<EventVm> {
         try {
-            const deleted = await this._todoService.delete(id);
-            return this._todoService.map<AccountVm>(deleted.toJSON());
+            const deleted = await this._eventService.delete(id);
+            return this._eventService.map<EventVm>(deleted.toJSON());
         } catch (e) {
             throw new InternalServerErrorException(e);
         }

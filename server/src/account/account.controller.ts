@@ -35,7 +35,7 @@ import { AccountService } from './account.service';
 @ApiUseTags(Account.modelName)
 @ApiBearerAuth()
 export class AccountController {
-    constructor(private readonly _todoService: AccountService) {}
+    constructor(private readonly _accountService: AccountService) {}
 
     @Post()
     // @Roles(UserRole.Admin)
@@ -45,8 +45,8 @@ export class AccountController {
     @ApiOperation(GetOperationId(Account.modelName, 'Create'))
     async create(@Body() params: AccountParams): Promise<AccountVm> {
         try {
-            const newAccount = await this._todoService.createAccount(params);
-            return this._todoService.map<AccountVm>(newAccount);
+            const newAccount = await this._accountService.createAccount(params);
+            return this._accountService.map<AccountVm>(newAccount);
         } catch (e) {
             throw new HttpException(e, HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -80,8 +80,8 @@ export class AccountController {
         }
 
         try {
-            const todos = await this._todoService.findAll(filter);
-            return this._todoService.map<AccountVm[]>(map(todos, todo => todo.toJSON()));
+            const accounts = await this._accountService.findAll(filter);
+            return this._accountService.map<AccountVm[]>(map(accounts, account => account.toJSON()));
         } catch (e) {
             throw new HttpException(e, HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -100,7 +100,7 @@ export class AccountController {
             throw new HttpException('Missing parameters', HttpStatus.BAD_REQUEST);
         }
 
-        const exist = await this._todoService.findById(id);
+        const exist = await this._accountService.findById(id);
 
         if (!exist) {
             throw new HttpException(`${id} Not found`, HttpStatus.NOT_FOUND);
@@ -115,8 +115,8 @@ export class AccountController {
         exist.level = level;
 
         try {
-            const updated = await this._todoService.update(id, exist);
-            return this._todoService.map<AccountVm>(updated.toJSON());
+            const updated = await this._accountService.update(id, exist);
+            return this._accountService.map<AccountVm>(updated.toJSON());
         } catch (e) {
             throw new HttpException(e, HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -130,8 +130,8 @@ export class AccountController {
     @ApiOperation(GetOperationId(Account.modelName, 'Delete'))
     async delete(@Param('id') id: string): Promise<AccountVm> {
         try {
-            const deleted = await this._todoService.delete(id);
-            return this._todoService.map<AccountVm>(deleted.toJSON());
+            const deleted = await this._accountService.delete(id);
+            return this._accountService.map<AccountVm>(deleted.toJSON());
         } catch (e) {
             throw new InternalServerErrorException(e);
         }
