@@ -26,10 +26,10 @@ import { ToBooleanPipe } from 'shared/pipes/to-boolean.pipe';
 import { EnumToArray } from 'shared/utilities/enum-to-array.helper';
 import { GetOperationId } from 'shared/utilities/get-operation-id.helper';
 import { AccountLevel } from './models/account-level.enum';
-import { Account } from './models/account';
+import { Account } from './models/event';
 import { AccountParams } from './models/view-models/account-params.model';
 import { AccountVm } from './models/view-models/account-vm.model';
-import { AccountService } from './account.service';
+import { AccountService } from './event.service';
 
 @Controller('accounts')
 @ApiUseTags(Account.modelName)

@@ -4,6 +4,8 @@ import { OpenhabStatus } from '../openhab-status.enum';
 
 export class OpenhabVm extends BaseModelVm {
     @ApiModelProperty() name: string;
+    @ApiModelProperty() openhabVersion: string;
+    @ApiModelProperty() clientVersion: string;
     @ApiModelProperty({ enum: OpenhabStatus })
     level: OpenhabStatus;
 }

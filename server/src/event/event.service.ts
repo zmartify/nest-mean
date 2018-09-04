@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { ModelType } from 'typegoose';
 import { BaseService } from 'shared/base.service';
 import { MapperService } from 'shared/mapper/mapper.service';
-import { Account, AccountModel } from './models/account';
+import { Account, AccountModel } from './models/event';
 import { AccountParams } from './models/view-models/account-params.model';
 
 @Injectable()
