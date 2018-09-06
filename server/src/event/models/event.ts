@@ -1,15 +1,14 @@
 import { Openhab } from 'openhab/models/openhab.model';
 import { InstanceType, ModelType, pre, prop, Typegoose, arrayProp, Ref } from 'typegoose';
 import { schemaOptions } from 'shared/base.model';
-import { User } from 'user/models/user.model';
 
 @pre<Event>('findOneAndUpdate', function(next) {
     this._update.updatedAt = new Date(Date.now());
     next();
 })
 export class Event extends Typegoose {
-    @arrayProp({ itemsRef: Openhab })
-    openhabs: Ref<Openhab>[];
+    @prop({ ref: Openhab })
+    openhab: Ref<Openhab>;
     @prop()
     source: string;
     @prop()
