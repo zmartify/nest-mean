@@ -53,8 +53,6 @@ export class EventController {
         }
     }
 
-
-
     @Put()
     // @Roles(UserRole.Admin, UserRole.User)
     // @UseGuards(AuthGuard('jwt'), RolesGuard)

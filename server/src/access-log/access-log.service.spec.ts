@@ -1,13 +1,13 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { OpenhabAccessLogService } from './openhab-access-log.service';
+import { AccessLogService } from './access-log.service';
 
-describe('OpenhabAccessLogService', () => {
-  let service: OpenhabAccessLogService;
+describe('AccessLogService', () => {
+  let service: AccessLogService;
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [OpenhabAccessLogService],
+      providers: [AccessLogService],
     }).compile();
-    service = module.get<OpenhabAccessLogService>(OpenhabAccessLogService);
+    service = module.get<AccessLogService>(AccessLogService);
   });
   it('should be defined', () => {
     expect(service).toBeDefined();

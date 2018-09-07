@@ -1,13 +1,13 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { OpenhabAccessLog } from './models/openhab-access-log';
-import { OpenhabAccessLogController } from './openhab-access-log.controller';
-import { OpenhabAccessLogService } from './openhab-access-log.service';
+import { AccessLog } from './models/access-log';
+import { AccessLogController } from './access-log.controller';
+import { AccessLogService } from './access-log.service';
 
 @Module({
-    imports: [MongooseModule.forFeature([{ name: OpenhabAccessLog.modelName, schema: OpenhabAccessLog.model.schema }])],
-    controllers: [OpenhabAccessLogController],
-    providers: [OpenhabAccessLogService],
+    imports: [MongooseModule.forFeature([{ name: AccessLog.modelName, schema: AccessLog.model.schema }])],
+    controllers: [AccessLogController],
+    providers: [AccessLogService],
 })
-export class OpenhabAccessLogModule {
+export class AccessLogModule {
 }

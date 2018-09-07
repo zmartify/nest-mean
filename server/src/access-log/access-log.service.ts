@@ -3,33 +3,34 @@ import { InjectModel } from '@nestjs/mongoose';
 import { ModelType } from 'typegoose';
 import { BaseService } from 'shared/base.service';
 import { MapperService } from 'shared/mapper/mapper.service';
-import { OpenhabAccessLog, OpenhabAccessLogModel } from './models/openhab-access-log';
-import { OpenhabAccessLogParams } from './models/view-models/openhab-access-log-params.model';
+import { AccessLog, AccessLogModel } from './models/access-log';
+import { AccessLogParams } from './models/view-models/access-log-params.model';
 
 @Injectable()
-export class OpenhabAccessLogService extends BaseService<OpenhabAccessLog> {
+export class AccessLogService extends BaseService<AccessLog> {
     constructor(
-        @InjectModel(OpenhabAccessLog.modelName) private readonly _openhabAccessLogModel: ModelType<OpenhabAccessLog>,
+        @InjectModel(AccessLog.modelName) private readonly _accessLogModel: ModelType<AccessLog>,
         private readonly _mapperService: MapperService,
     ) {
         super();
-        this._model = _openhabAccessLogModel;
+        this._model = _accessLogModel;
         this._mapper = _mapperService.mapper;
     }
 
-    async createOpenhabAccessLog(params: OpenhabAccessLogParams): Promise<OpenhabAccessLog> {
-        const { openhab, remoteHost, remoteVersion, remoteClientVersion } = params;
+    async createAccessLog(params: AccessLogParams): Promise<AccessLog> {
+        const { openhab, user, path, method, remoteHost } = params;
 
-        const newOpenhabAccessLog = new OpenhabAccessLogModel();
+        const newAccessLog = new AccessLogModel();
 
-        newOpenhabAccessLog.openhab = openhab;
-        newOpenhabAccessLog.remoteHost = remoteHost;
-        newOpenhabAccessLog.remoteVersion = remoteVersion;
-        newOpenhabAccessLog.remoteClientVersion = remoteClientVersion;
+        newAccessLog.openhab = openhab;
+        newAccessLog.user = user;
+        newAccessLog.path = path;
+        newAccessLog.method = method;
+        newAccessLog.remoteHost = remoteHost;
 
         try {
-            const result = await this.create(newOpenhabAccessLog);
-            return result.toJSON() as OpenhabAccessLog;
+            const result = await this.create(newAccessLog);
+            return result.toJSON() as AccessLog;
         } catch (e) {
             throw new InternalServerErrorException(e);
         }

@@ -1,15 +1,15 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { OpenhabAccessLogController } from './openhab-access-log.controller';
+import { AccessLogController } from './access-log.controller';
 
-describe('OpenhabAccessLog Controller', () => {
+describe('AccessLog Controller', () => {
   let module: TestingModule;
   beforeAll(async () => {
     module = await Test.createTestingModule({
-      controllers: [OpenhabAccessLogController],
+      controllers: [AccessLogController],
     }).compile();
   });
   it('should be defined', () => {
-    const controller: OpenhabAccessLogController = module.get<OpenhabAccessLogController>(OpenhabAccessLogController);
+    const controller: AccessLogController = module.get<AccessLogController>(AccessLogController);
     expect(controller).toBeDefined();
   });
 });
