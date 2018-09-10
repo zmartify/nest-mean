@@ -8,7 +8,7 @@ import { schemaOptions } from 'shared/base.model';
 })
 export class RequestLog extends Typegoose {
     @prop()
-    id: number;                 // Request uniq id
+    requestId: number;                 // Request uniq id
     @prop()
     url: string;                // Request url
     @prop({ ref: Openhab, required: true})

@@ -1,12 +1,13 @@
 import { InstanceType, ModelType, pre, prop, Typegoose, Ref } from 'typegoose';
 import { schemaOptions } from 'shared/base.model';
-import { OpenhabStatus } from './openhab-status.enum';
+import { OpenhabStatus } from 'shared/enums/openhab-status.enum';
 import { User } from 'user/models/user.model';
 
 @pre<Openhab>('findOneAndUpdate', function(next) {
     this._update.updatedAt = new Date(Date.now());
     next();
 })
+
 export class Openhab extends Typegoose {
     @prop({ required: [true, 'Content is required'] })
     content: string;
@@ -14,7 +15,7 @@ export class Openhab extends Typegoose {
     isCompleted: boolean;
 
     @prop()
-    name: string;                                       // A meaningfull name of openHAB
+    name: string;                                       // A meaningful name of openHAB
     @prop({ unique: true, required: [true, 'Uuid is required'] })
     uuid: string;                    // openHAB generated UUID
     @prop({ required: [true, 'Secret is required']})

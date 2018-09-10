@@ -18,14 +18,12 @@ export class RequestLogService extends BaseService<RequestLog> {
     }
 
     async createRequestLog(params: RequestLogParams): Promise<RequestLog> {
-        const { openhab, remoteHost, remoteVersion, remoteClientVersion } = params;
+        const { openhab, url } = params;
 
         const newRequestLog = new RequestLogModel();
 
         newRequestLog.openhab = openhab;
-        newRequestLog.remoteHost = remoteHost;
-        newRequestLog.remoteVersion = remoteVersion;
-        newRequestLog.remoteClientVersion = remoteClientVersion;
+        newRequestLog.url = url;
 
         try {
             const result = await this.create(newRequestLog);

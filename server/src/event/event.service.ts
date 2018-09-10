@@ -6,6 +6,10 @@ import { MapperService } from 'shared/mapper/mapper.service';
 import { Event, EventModel } from './models/event';
 import { EventParams } from './models/view-models/event-params.model';
 
+export const GoodColor = '#e0f0d5';
+export const BadColor = '#f1dede';
+export const InfoColor = '#daedf8';
+
 @Injectable()
 export class EventService extends BaseService<Event> {
     constructor(

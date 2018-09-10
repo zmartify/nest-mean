@@ -9,12 +9,18 @@ import { TodoModule } from './todo/todo.module';
 import { UserModule } from './user/user.module';
 import { OpenhabModule } from 'openhab/openhab.module';
 import { AccountModule } from 'account/account.module';
+import { EventModule } from 'event/event.module';
+import { AccessLogModule } from 'access-log/access-log.module';
+import { OpenhabAccessLogModule } from 'openhab-access-log/openhab-access-log.module';
+import { RequestLogModule } from 'request-log/request-log.module';
+import { ProxyOpenhabModule } from 'proxy-openhab/proxy-openhab.module';
 
 @Module({
     imports: [SharedModule, MongooseModule.forRoot(ConfigurationService.connectionString, {
         retryDelay: 500,
         retryAttempts: 3,
-    }), UserModule, TodoModule, OpenhabModule, AccountModule],
+    }), UserModule, AccessLogModule, EventModule, RequestLogModule, OpenhabAccessLogModule, TodoModule, OpenhabModule,
+    AccountModule, ProxyOpenhabModule],
     controllers: [AppController],
     providers: [AppService],
 })

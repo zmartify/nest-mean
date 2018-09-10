@@ -1,4 +1,3 @@
-import { MongooseModule } from '@nestjs/mongoose';
 import { Module } from '@nestjs/common';
 import { ProxyOpenhabController } from './proxy-openhab.controller';
 import { ProxyOpenhabGateway } from './proxy-openhab.gateway';
@@ -8,5 +7,6 @@ import { RequestTracker } from './request-tracker.service';
     controllers: [ProxyOpenhabController],
     providers: [ProxyOpenhabGateway, RequestTracker],
 })
+
 export class ProxyOpenhabModule {
 }

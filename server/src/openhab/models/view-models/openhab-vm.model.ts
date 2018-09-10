@@ -1,6 +1,6 @@
 import { ApiModelProperty } from '@nestjs/swagger';
 import { BaseModelVm } from 'shared/base.model';
-import { OpenhabStatus } from '../openhab-status.enum';
+import { OpenhabStatus } from 'shared/enums/openhab-status.enum';
 
 export class OpenhabVm extends BaseModelVm {
     @ApiModelProperty() name: string;

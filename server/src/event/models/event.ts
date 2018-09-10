@@ -1,6 +1,7 @@
 import { Openhab } from 'openhab/models/openhab.model';
 import { InstanceType, ModelType, pre, prop, Typegoose, arrayProp, Ref } from 'typegoose';
 import { schemaOptions } from 'shared/base.model';
+import { EventColor } from 'shared/enums/event-color.enum';
 
 @pre<Event>('findOneAndUpdate', function(next) {
     this._update.updatedAt = new Date(Date.now());
@@ -19,8 +20,8 @@ export class Event extends Typegoose {
     numericStatus: number;
     @prop()
     oldNumericStatus: number;
-    @prop()
-    color: string;
+    @prop({ enum: EventColor })
+    color: EventColor;
     @prop({ default: Date.now(), expires: '14d' })
     when: Date;
 

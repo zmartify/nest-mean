@@ -1,6 +1,14 @@
 {
     "git.ignoreLimitWarning": true,
     "cSpell.words": [
-        "openhabs"
+        "HAB's",
+        "broadcastnotification",
+        "itemupdate",
+        "lognotification",
+        "openhabaccesslog",
+        "openhabs",
+        "stangsdalpi",
+        "todos",
+        "updateconfig"
     ]
 }

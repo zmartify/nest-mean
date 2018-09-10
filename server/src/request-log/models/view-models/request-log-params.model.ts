@@ -4,11 +4,19 @@ import { Openhab } from 'openhab/models/openhab.model';
 
 export class RequestLogParams {
     @ApiModelProperty()
+    requestId: number;
+    @ApiModelProperty()
+    url: string;
+    @ApiModelProperty()
     openhab: Ref<Openhab>;
     @ApiModelProperty()
-    remoteHost: string;
+    requestReceived: Date;
     @ApiModelProperty()
-    remoteVersion: string;
+    requestSent: Date;
     @ApiModelProperty()
-    remoteClientVersion: string;
+    responseReceived: Date;
+    @ApiModelProperty()
+    responseSent: Date;
+    @ApiModelProperty()
+    responseStatus: number;
 }

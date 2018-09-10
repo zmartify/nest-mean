@@ -5,15 +5,19 @@ import { Openhab } from 'openhab/models/openhab.model';
 
 export class RequestLogVm extends BaseModelVm {
     @ApiModelProperty()
+    requestId: number;
+    @ApiModelProperty()
+    url: string;
+    @ApiModelProperty()
     openhab: Ref<Openhab>;
     @ApiModelProperty()
-    remoteHost: string;
+    requestReceived: Date;
     @ApiModelProperty()
-    remoteVersion: string;
+    requestSent: Date;
     @ApiModelProperty()
-    remoteClientVersion: string;
+    responseReceived: Date;
     @ApiModelProperty()
-    whenStarted?: Date;
+    responseSent: Date;
     @ApiModelProperty()
-    whenFinished?: Date;
+    responseStatus: number;
 }

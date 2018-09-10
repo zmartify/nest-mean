@@ -28,7 +28,7 @@ import { GetOperationId } from 'shared/utilities/get-operation-id.helper';
 import { OpenhabVm } from './models/view-models/openhab-vm.model';
 import { OpenhabParams } from './models/view-models/openhab-params.model';
 import { Openhab } from './models/openhab.model';
-import { OpenhabStatus } from './models/openhab-status.enum';
+import { OpenhabStatus } from 'shared/enums/openhab-status.enum';
 import { OpenhabService } from './openhab.service';
 
 @Controller('openhabs')

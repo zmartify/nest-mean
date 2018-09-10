@@ -25,7 +25,7 @@ import {
     ApiUseTags,
 } from '@nestjs/swagger';
 import { isArray, map } from 'lodash';
-import { ApiException } from '../../shared/api-exception.model';
+import { ApiException } from '../shared/api-exception.model';
 import { ProxyOpenhabGateway } from './proxy-openhab.gateway';
 
 @Controller()
@@ -40,7 +40,7 @@ export class ProxyOpenhabController {
     @ApiBadRequestResponse({ type: ApiException })
     async allRest(@Req() req, @Res() res, @Body() params: any): Promise<any> {
         this.emitRequest(res, req);
-        return  'hello from rest';
+        return 'hello from rest';
     }
 
     emitRequest(req, res) {
@@ -66,34 +66,35 @@ export class ProxyOpenhabController {
             requestHeaders['host'] = 'home.' + this.getHost() + ':' + this.getPort();
         }
 
-    // Send a message with request to openhab agent module
+        // Send a message with request to openhab agent module
         this.gateway.emitRequest(req.openhab.uuid, {
-        id: requestId,
-        method: req.method,
-        headers: requestHeaders,
-        path: requestPath,
-        query: req.query,
-        body: req.rawBody,
-    });
+            id: requestId,
+            method: req.method,
+            headers: requestHeaders,
+            path: requestPath,
+            query: req.query,
+            body: req.rawBody,
+        });
         res.openhab = req.openhab;
         this.requestTracker.add(res, requestId);
 
-    // we should only have to catch these two callbacks to hear about the response
-    // being close/finished, but thats not the case. Sometimes neither gets called
-    // and we have to manually clean up.  We have a interval for this above.
+        // we should only have to catch these two callbacks to hear about the response
+        // being close/finished, but thats not the case. Sometimes neither gets called
+        // and we have to manually clean up.  We have a interval for this above.
+        /*
+            // when a response is closed by the requester
+                res.on('close', function() {
+                self.io.sockets.in(req.openhab.uuid).emit('cancel', {
+                    id: requestId,
+                });
+                this.requestTracker.remove(requestId);
+            });
 
-    // when a response is closed by the requester
-        res.on('close', function() {
-        self.io.sockets.in(req.openhab.uuid).emit('cancel', {
-            id: requestId,
-        });
-        this.requestTracker.remove(requestId);
-    });
-
-    // when a response is closed by us
-        res.on('finish', function() {
-        this.requestTracker.remove(requestId);
-    });
+            // when a response is closed by us
+                res.on('finish', function() {
+                this.requestTracker.remove(requestId);
+            });
+        */
     }
 
     getHost() {

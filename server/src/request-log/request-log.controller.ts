@@ -80,10 +80,6 @@ export class RequestLogController {
             throw new HttpException(`${id} Not found`, HttpStatus.NOT_FOUND);
         }
 
-        if (exist.whenFinished) {
-            throw new HttpException('Already completed', HttpStatus.BAD_REQUEST);
-        }
-
         try {
             const updated = await this._requestLogService.update(id, exist);
             return this._requestLogService.map<RequestLogVm>(updated.toJSON());

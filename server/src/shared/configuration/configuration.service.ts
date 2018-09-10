@@ -14,4 +14,8 @@ export class ConfigurationService {
     get isDevelopment(): boolean {
         return this.environmentHosting === 'development';
     }
+
+    get internalAddress(): string {
+        return process.env[Configuration.HOST] + ':' + process.env[Configuration.PORT];
+    }
 }
