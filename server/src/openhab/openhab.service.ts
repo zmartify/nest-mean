@@ -18,11 +18,13 @@ export class OpenhabService extends BaseService<Openhab> {
     }
 
     async createOpenhab(params: OpenhabParams): Promise<Openhab> {
-        const { name, level } = params;
+        const { name, uuid, secret } = params;
 
         const newOpenhab = new OpenhabModel();
 
         newOpenhab.name = name;
+        newOpenhab.uuid = uuid;
+        newOpenhab.secret = secret;
 
         try {
             const result = await this.create(newOpenhab);

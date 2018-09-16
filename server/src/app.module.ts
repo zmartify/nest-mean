@@ -5,22 +5,15 @@ import { AppService } from './app.service';
 import { Configuration } from './shared/configuration/configuration.enum';
 import { ConfigurationService } from './shared/configuration/configuration.service';
 import { SharedModule } from './shared/shared.module';
-import { TodoModule } from './todo/todo.module';
 import { UserModule } from './user/user.module';
-import { OpenhabModule } from 'openhab/openhab.module';
-import { AccountModule } from 'account/account.module';
-import { EventModule } from 'event/event.module';
-import { AccessLogModule } from 'access-log/access-log.module';
-import { OpenhabAccessLogModule } from 'openhab-access-log/openhab-access-log.module';
-import { RequestLogModule } from 'request-log/request-log.module';
 import { ProxyOpenhabModule } from 'proxy-openhab/proxy-openhab.module';
 
 @Module({
     imports: [SharedModule, MongooseModule.forRoot(ConfigurationService.connectionString, {
         retryDelay: 500,
         retryAttempts: 3,
-    }), UserModule, AccessLogModule, EventModule, RequestLogModule, OpenhabAccessLogModule, TodoModule, OpenhabModule,
-    AccountModule, ProxyOpenhabModule],
+        useNewUrlParser: true,
+    }), UserModule, ProxyOpenhabModule],
     controllers: [AppController],
     providers: [AppService],
 })

@@ -8,6 +8,7 @@ import { RequestLogService } from './request-log.service';
     imports: [MongooseModule.forFeature([{ name: RequestLog.modelName, schema: RequestLog.model.schema }])],
     controllers: [RequestLogController],
     providers: [RequestLogService],
+    exports: [RequestLogService],
 })
 export class RequestLogModule {
 }

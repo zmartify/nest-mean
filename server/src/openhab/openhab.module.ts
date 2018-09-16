@@ -8,6 +8,7 @@ import { OpenhabService } from './openhab.service';
     imports: [MongooseModule.forFeature([{ name: Openhab.modelName, schema: Openhab.model.schema }])],
     controllers: [OpenhabController],
     providers: [OpenhabService],
+    exports: [OpenhabService],
 })
 export class OpenhabModule {
 }

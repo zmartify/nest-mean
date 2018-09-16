@@ -8,6 +8,7 @@ import { OpenhabAccessLogService } from './openhab-access-log.service';
     imports: [MongooseModule.forFeature([{ name: OpenhabAccessLog.modelName, schema: OpenhabAccessLog.model.schema }])],
     controllers: [OpenhabAccessLogController],
     providers: [OpenhabAccessLogService],
+    exports: [OpenhabAccessLogService],
 })
 export class OpenhabAccessLogModule {
 }

@@ -30,7 +30,7 @@ import { OpenhabAccessLogVm } from './models/view-models/openhab-access-log-vm.m
 import { OpenhabAccessLogService } from './openhab-access-log.service';
 import { OpenhabAccessLogParams } from './models/view-models/openhab-access-log-params.model';
 
-@Controller('OpenhabAccessLogs')
+@Controller('openhabaccesslogs')
 @ApiUseTags(OpenhabAccessLog.modelName)
 @ApiBearerAuth()
 export class OpenhabAccessLogController {

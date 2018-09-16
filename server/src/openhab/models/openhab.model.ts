@@ -9,11 +9,6 @@ import { User } from 'user/models/user.model';
 })
 
 export class Openhab extends Typegoose {
-    @prop({ required: [true, 'Content is required'] })
-    content: string;
-    @prop({ default: false })
-    isCompleted: boolean;
-
     @prop()
     name: string;                                       // A meaningful name of openHAB
     @prop({ unique: true, required: [true, 'Uuid is required'] })

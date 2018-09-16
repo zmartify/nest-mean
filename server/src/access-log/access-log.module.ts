@@ -8,6 +8,7 @@ import { AccessLogService } from './access-log.service';
     imports: [MongooseModule.forFeature([{ name: AccessLog.modelName, schema: AccessLog.model.schema }])],
     controllers: [AccessLogController],
     providers: [AccessLogService],
+    exports: [AccessLogService],
 })
 export class AccessLogModule {
 }

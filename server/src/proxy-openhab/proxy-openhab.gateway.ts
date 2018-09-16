@@ -8,15 +8,17 @@ import {
     OnGatewayDisconnect,
     OnGatewayInit,
 } from '@nestjs/websockets';
-import { Logger } from '@nestjs/common';
-import { RequestTracker } from './request-tracker.service';
+import { SubscribeMessageWithAck } from 'nestjs-socket-handlers-with-ack';
 import { OpenhabService } from 'openhab/openhab.service';
 import { OpenhabAccessLogService } from 'openhab-access-log/openhab-access-log.service';
 import { EventService } from 'event/event.service';
 import { ConfigurationService } from '../shared/configuration/configuration.service';
 import { EventColor, OpenhabStatus } from '../shared/enums';
+import { Logger } from '@nestjs/common';
 
 const logger = Logger;
+
+const CLASSNAME = 'ProxyOpenhabGateway';
 
 @WebSocketGateway()
 export class ProxyOpenhabGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
@@ -27,17 +29,18 @@ export class ProxyOpenhabGateway implements OnGatewayInit, OnGatewayConnection, 
     internalAddress: string;
 
     constructor(
-                private _configurationService: ConfigurationService,
-                private _openhabService: OpenhabService,
-                private _eventService: EventService,
-                private _openhabAccessLogService: OpenhabAccessLogService) {
+            private _configurationService: ConfigurationService,
+            private _eventService: EventService,
+            private _openhabService: OpenhabService,
+            private _openhabAccessLogService: OpenhabAccessLogService) {
 
         this.internalAddress = this._configurationService.internalAddress;
+        logger.log('loaded....', CLASSNAME);
     }
 
     @SubscribeMessage('events')
-    async message(client: any, num: number): Promise<boolean> {
-        // this.logger.log('Received ' + num);
+    async message(client: any, num: any): Promise<boolean> {
+        logger.log('Received ' + num);
         if (isNaN(num)) {
             throw new Error('Wrong number received');
         }
@@ -51,6 +54,11 @@ export class ProxyOpenhabGateway implements OnGatewayInit, OnGatewayConnection, 
 
     @SubscribeMessage('responseError') responseError(client, data): WsResponse<void> {
         logger.log('responseError');
+        return;
+    }
+
+    @SubscribeMessageWithAck('connection') connectnotification(client, data): WsResponse<void> {
+        logger.log('connection');
         return;
     }
 
@@ -70,7 +78,13 @@ export class ProxyOpenhabGateway implements OnGatewayInit, OnGatewayConnection, 
     }
 
     @SubscribeMessage('itemupdate') itemUpdate(client, data): WsResponse<void> {
-        logger.log('itemupdate');
+        if (client.openhabId) { logger.log('--> ' + client.openhabId, CLASSNAME); }
+
+        logger.log('>' + JSON.stringify(data, null, 2), CLASSNAME);
+        const itemName = data.itemName;
+        const itemStatus = data.itemStatus;
+
+        logger.log('itemupdate ' + client.id, CLASSNAME);
         return;
     }
 
@@ -84,51 +98,56 @@ export class ProxyOpenhabGateway implements OnGatewayInit, OnGatewayConnection, 
     }
 
     afterInit(server) {
-        console.log('websockets initialized');
+        logger.log('websockets initialized', CLASSNAME);
     }
 
-    async handleConnection(socket) {
-        logger.log('openHAB-cloud: Incoming openHAB connection for uuid ' + socket.handshake.uuid);
-        socket.join(socket.handshake.uuid);
+    async handleConnection(client) {
+        const uuid = client.handshake.headers.uuid;
+        const secret = client.handshake.headers.secret;
+        const openhabVersion = client.handshake.headers.openhabversion;
+        const clientVersion = client.handshake.headers.clientversion;
+        logger.log('Id: ' + client.id);
+        logger.log('Incoming openHAB connection for uuid ' + uuid, CLASSNAME);
 
+        logger.log('Count: ' + JSON.stringify(this.server.connected, null, 2), CLASSNAME);
         // Remove openHAB from offline array if needed
-        delete this.offlineOpenhabs[socket.handshake.uuid];
+        delete this.offlineOpenhabs[uuid];
 
         try {
-            const openhab = await this._openhabService.findOne({
-                uuid: socket.handshake.uuid,
-            });
+            const openhab = await this._openhabService.findOne({ uuid });
 
             if (!openhab) {
-                logger.warn('openHAB-cloud: Unable to find openHAB ' + socket.handshake.uuid);
+                logger.warn('Unable to find openHAB ' + uuid, CLASSNAME);
+                const oh = await this._openhabService.createOpenhab({ name: 'Stangsdal', uuid, secret } );
+                logger.log('->' + JSON.stringify(oh, null, 2));
             } else {
-                logger.log('openHAB-cloud: Connected openHAB with ' + socket.handshake.uuid + ' successfully');
+                logger.log('Connected openHAB with ' + uuid + ' successfully', CLASSNAME);
                 // Make an openhabaccesslog entry anyway
                 try {
                     await this._openhabAccessLogService.createOpenhabAccessLog({
                         openhab: openhab.id,
-                        remoteHost: socket.handshake.headers['x-forwarded-for'] || socket.client.conn.remoteAddress,
-                        remoteVersion: socket.handshake.openhabVersion,
-                        remoteClientVersion: socket.handshake.clientVersion,
+                        remoteHost: client.handshake.headers['x-forwarded-for'] || client.client.conn.remoteAddress,
+                        remoteVersion: openhabVersion,
+                        remoteClientVersion: clientVersion,
                     });
                 } catch (error) {
-                    logger.error('openHAB-cloud: Error saving openHAB access log: ' + error);
+                    logger.error('Error saving openHAB access log: ' + error, CLASSNAME);
                 }
 
                 // Make an event and notification only if openhab was offline
                 // If it was marked online, means reconnect appeared because of my.oh fault
                 // We don't want massive events and notifications when node is restarted
-                logger.log('openHAB-cloud: uuid ' + socket.handshake.uuid + ' server address ' + openhab.serverAddress +
-                    ' my address ' + this.internalAddress);
+                logger.log('uuid ' + uuid + ' server address ' + openhab.serverAddress +
+                    ' my address ' + this.internalAddress, CLASSNAME);
                 if (openhab.status === OpenhabStatus.Offline || openhab.serverAddress !== this.internalAddress) {
                     openhab.status = OpenhabStatus.Online;
                     openhab.serverAddress = this.internalAddress;
                     openhab.last_online = new Date();
-                    openhab.openhabVersion = socket.handshake.openhabVersion;
-                    openhab.clientVersion = socket.handshake.clientVersion;
+                    openhab.openhabVersion = openhabVersion;
+                    openhab.clientVersion = clientVersion;
                     openhab.save((error) => {
                         if (error) {
-                            logger.error('openHAB-cloud: Error saving openHAB: ' + error);
+                            logger.error('Error saving openHAB: ' + error, CLASSNAME);
                         }
                     });
                     try {
@@ -139,30 +158,38 @@ export class ProxyOpenhabGateway implements OnGatewayInit, OnGatewayConnection, 
                             color: EventColor.Good,
                         });
                     } catch (error) {
-                        logger.error('openHAB-cloud: Error saving connect event: ' + error);
+                        logger.error('Error saving connect event: ' + error, CLASSNAME);
                     }
                     // TODO: notifyOpenHABStatusChange(openhab, 'online');
                 } else {
-                    openhab.openhabVersion = socket.handshake.openhabVersion;
-                    openhab.clientVersion = socket.handshake.clientVersion;
+                    openhab.openhabVersion = openhabVersion;
+                    openhab.clientVersion = clientVersion;
                     openhab.save(function(error) {
                         if (error) {
-                            this.logger.error('openHAB-cloud: Error saving openhab: ' + error);
+                            logger.error('Error saving openhab: ' + error, CLASSNAME);
                         }
                     });
                 }
-                socket.openhabUuid = openhab.uuid;
-                socket.openhabId = openhab.id;
+                client.openhabUuid = openhab.uuid;
+                client.openhabId = openhab.id;
             }
         } catch (error) {
-            logger.error('openHAB-cloud: Error looking up openHAB: ' + error);
+            logger.error('Error looking up openHAB: ' + JSON.stringify(error, null, 2), CLASSNAME);
             return;
         }
-
-        logger.log('connect');
     }
 
-    handleDisconnect(client) {
-        logger.log('disconnect');
-    }
+    async handleDisconnect(client) {
+        const uuid = client.handshake.headers.uuid;
+        logger.log('Disconnect uuid: ' + uuid, CLASSNAME);
+
+        try {
+            const openhab = await this._openhabService.findOne({ uuid });
+            this.offlineOpenhabs[openhab.uuid] = Date.now();
+            logger.log('Disconnected ' + openhab.uuid, CLASSNAME);
+        } catch (error) {
+            logger.error('Disconnect: Client ' + uuid + ' not found', CLASSNAME);
+        }
+
+      }
 }

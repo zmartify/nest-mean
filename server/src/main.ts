@@ -8,6 +8,9 @@ declare const module: any;
 
 async function bootstrap() {
     const app = await NestFactory.create(AppModule);
+
+    // app.enableCors();
+
     const hostDomain = AppModule.isDev ? `${AppModule.host}:${AppModule.port}` : AppModule.host;
 
     const swaggerOptions = new DocumentBuilder()
@@ -44,7 +47,7 @@ async function bootstrap() {
     // app.setGlobalPrefix('api');
     app.useGlobalFilters(new HttpExceptionFilter());
 
-    app.useWebSocketAdapter(new WsAdapter(app.getHttpServer()));
+    // app.useWebSocketAdapter(new WsAdapter(app.getHttpServer()));
 
     await app.listen(AppModule.port);
 }
