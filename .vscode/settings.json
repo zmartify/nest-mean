@@ -3,10 +3,13 @@
     "cSpell.words": [
         "HAB's",
         "broadcastnotification",
+        "clientversion",
+        "connectnotification",
         "itemupdate",
         "lognotification",
         "openhabaccesslog",
         "openhabs",
+        "openhabversion",
         "stangsdalpi",
         "todos",
         "updateconfig"

@@ -14,12 +14,16 @@ import { OpenhabAccessLogService } from 'openhab-access-log/openhab-access-log.s
 import { EventService } from 'event/event.service';
 import { ConfigurationService } from '../shared/configuration/configuration.service';
 import { EventColor, OpenhabStatus } from '../shared/enums';
-import { Logger } from '@nestjs/common';
+import { Logger, UseInterceptors, UsePipes } from '@nestjs/common';
+import { ProxyOpenhabInterceptor } from './proxy-openhab.interceptor';
+import { ProxyOpenhabHandshakePipe } from './proxy-openhab.handshake.pipe';
 
 const logger = Logger;
 
 const CLASSNAME = 'ProxyOpenhabGateway';
 
+@UseInterceptors(ProxyOpenhabInterceptor)
+// @UsePipes(new ProxyOpenhabHandshakePipe())
 @WebSocketGateway()
 export class ProxyOpenhabGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
 
@@ -29,10 +33,10 @@ export class ProxyOpenhabGateway implements OnGatewayInit, OnGatewayConnection, 
     internalAddress: string;
 
     constructor(
-            private _configurationService: ConfigurationService,
-            private _eventService: EventService,
-            private _openhabService: OpenhabService,
-            private _openhabAccessLogService: OpenhabAccessLogService) {
+        private _configurationService: ConfigurationService,
+        private _eventService: EventService,
+        private _openhabService: OpenhabService,
+        private _openhabAccessLogService: OpenhabAccessLogService) {
 
         this.internalAddress = this._configurationService.internalAddress;
         logger.log('loaded....', CLASSNAME);
@@ -57,8 +61,13 @@ export class ProxyOpenhabGateway implements OnGatewayInit, OnGatewayConnection, 
         return;
     }
 
-    @SubscribeMessageWithAck('connection') connectnotification(client, data): WsResponse<void> {
+    @SubscribeMessage('connection') connectionnotification(client, data): WsResponse<void> {
         logger.log('connection');
+        return;
+    }
+
+    @SubscribeMessage('connect') connectnotification(client, data): WsResponse<void> {
+        logger.log('connect');
         return;
     }
 
@@ -77,15 +86,33 @@ export class ProxyOpenhabGateway implements OnGatewayInit, OnGatewayConnection, 
         return;
     }
 
-    @SubscribeMessage('itemupdate') itemUpdate(client, data): WsResponse<void> {
-        if (client.openhabId) { logger.log('--> ' + client.openhabId, CLASSNAME); }
+    @SubscribeMessage('itemupdate') async itemUpdate(client, data): Promise<WsResponse<void>> {
+        // if openhabId is missing then user has not completed auth
+        if (client.openhabId === undefined) {
+            return;
+        }
 
-        logger.log('>' + JSON.stringify(data, null, 2), CLASSNAME);
         const itemName = data.itemName;
         const itemStatus = data.itemStatus;
 
+        // Find openhab
+        if (itemStatus && itemStatus.length > 100) {
+            logger.log('openHAB-cloud: Item ' + itemName + ' status.length (' + (itemStatus ? itemStatus.length : 'null') +
+                ') is too big or null, ignoring update', CLASSNAME);
+            return;
+        }
+        try {
+            const openhab = await this._openhabService.findById(client.openhabId);
+            if (!openhab) {
+                logger.log('openHAB-cloud: Unable to find openHAB for itemUpdate: openHAB doesn\'t exist', CLASSNAME);
+                return;
+            }
+        } catch (error) {
+            logger.warn('openHAB-cloud: Unable to find openHAB for itemUpdate: ' + error);
+            return;
+        }
+
         logger.log('itemupdate ' + client.id, CLASSNAME);
-        return;
     }
 
     @SubscribeMessage('updateconfig') updateConfig(client, data): WsResponse<void> {
@@ -106,10 +133,9 @@ export class ProxyOpenhabGateway implements OnGatewayInit, OnGatewayConnection, 
         const secret = client.handshake.headers.secret;
         const openhabVersion = client.handshake.headers.openhabversion;
         const clientVersion = client.handshake.headers.clientversion;
-        logger.log('Id: ' + client.id);
+        logger.log('Id: ' + client.id, CLASSNAME);
         logger.log('Incoming openHAB connection for uuid ' + uuid, CLASSNAME);
 
-        logger.log('Count: ' + JSON.stringify(this.server.connected, null, 2), CLASSNAME);
         // Remove openHAB from offline array if needed
         delete this.offlineOpenhabs[uuid];
 
@@ -118,7 +144,7 @@ export class ProxyOpenhabGateway implements OnGatewayInit, OnGatewayConnection, 
 
             if (!openhab) {
                 logger.warn('Unable to find openHAB ' + uuid, CLASSNAME);
-                const oh = await this._openhabService.createOpenhab({ name: 'Stangsdal', uuid, secret } );
+                const oh = await this._openhabService.createOpenhab({ name: 'Stangsdal', uuid, secret });
                 logger.log('->' + JSON.stringify(oh, null, 2));
             } else {
                 logger.log('Connected openHAB with ' + uuid + ' successfully', CLASSNAME);
@@ -164,7 +190,7 @@ export class ProxyOpenhabGateway implements OnGatewayInit, OnGatewayConnection, 
                 } else {
                     openhab.openhabVersion = openhabVersion;
                     openhab.clientVersion = clientVersion;
-                    openhab.save(function(error) {
+                    openhab.save((error) => {
                         if (error) {
                             logger.error('Error saving openhab: ' + error, CLASSNAME);
                         }
@@ -191,5 +217,5 @@ export class ProxyOpenhabGateway implements OnGatewayInit, OnGatewayConnection, 
             logger.error('Disconnect: Client ' + uuid + ' not found', CLASSNAME);
         }
 
-      }
+    }
 }
