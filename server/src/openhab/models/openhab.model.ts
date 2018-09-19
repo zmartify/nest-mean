@@ -1,4 +1,4 @@
-import { InstanceType, ModelType, pre, prop, Typegoose, Ref } from 'typegoose';
+import { InstanceType, ModelType, pre, prop, Typegoose, Ref } from '@aljazerzen/typegoose';
 import { schemaOptions } from 'shared/base.model';
 import { OpenhabStatus } from 'shared/enums/openhab-status.enum';
 import { User } from 'user/models/user.model';

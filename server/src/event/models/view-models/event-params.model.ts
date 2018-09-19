@@ -1,6 +1,6 @@
 import { ApiModelProperty, ApiModelPropertyOptional } from '@nestjs/swagger';
 import { Openhab } from 'openhab/models/openhab.model';
-import { Ref } from 'typegoose';
+import { Ref } from '@aljazerzen/typegoose';
 import { EventColor, OpenhabStatus } from 'shared/enums';
 
 export class EventParams {

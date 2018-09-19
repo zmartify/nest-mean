@@ -16,7 +16,7 @@ export class AuthService {
         readonly _userService: UserService,
         private readonly _configurationService: ConfigurationService,
     ) {
-        this.jwtOptions = { expiresIn: '12h' };
+        this.jwtOptions = { expiresIn: '48h' };
         this.jwtKey = _configurationService.get(Configuration.JWT_KEY);
     }
 

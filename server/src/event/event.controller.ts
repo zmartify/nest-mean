@@ -27,12 +27,12 @@ import { EnumToArray } from 'shared/utilities/enum-to-array.helper';
 import { GetOperationId } from 'shared/utilities/get-operation-id.helper';
 import { EventVm } from './models/view-models/event-vm.model';
 import { EventService } from './event.service';
-import { Ref } from 'typegoose';
+import { Ref } from '@aljazerzen/typegoose';
 import { Openhab } from 'openhab/models/openhab.model';
 import { EventParams } from './models/view-models/event-params.model';
 import { Event } from './models/event';
 
-@Controller('accounts')
+@Controller('events')
 @ApiUseTags(Event.modelName)
 @ApiBearerAuth()
 export class EventController {

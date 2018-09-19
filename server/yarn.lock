@@ -3475,10 +3475,6 @@ lodash.sortby@^4.7.0:
   version "4.7.0"
   resolved "https://registry.yarnpkg.com/lodash.sortby/-/lodash.sortby-4.7.0.tgz#edd14c824e2cc9c1e0b0a1b42bb5210516a42438"
 
-lodash@4.17.10:
-  version "4.17.10"
-  resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.10.tgz#1b7793cf7259ea38fb3661d4d38b3260af8ae4e7"
-
 lodash@4.17.11, lodash@^4.13.1, lodash@^4.17.10, lodash@^4.17.4, lodash@^4.17.5:
   version "4.17.11"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.11.tgz#b39ea6229ef607ecd89e2c8df12536891cac9b8d"
@@ -3770,7 +3766,7 @@ mongoose-legacy-pluralize@1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/mongoose-legacy-pluralize/-/mongoose-legacy-pluralize-1.0.2.tgz#3ba9f91fa507b5186d399fb40854bff18fb563e4"
 
-mongoose@5.2.15:
+mongoose@5.2.15, mongoose@^5.2.15:
   version "5.2.15"
   resolved "https://registry.yarnpkg.com/mongoose/-/mongoose-5.2.15.tgz#3e6459bd7a074f9cbc142052f4d56eae0097adea"
   dependencies:
@@ -5582,11 +5578,12 @@ typedarray@^0.0.6:
   version "0.0.6"
   resolved "https://registry.yarnpkg.com/typedarray/-/typedarray-0.0.6.tgz#867ac74e3864187b1d3d47d996a78ec5c8830777"
 
-typegoose@5.4.0:
-  version "5.2.1"
-  resolved "https://registry.yarnpkg.com/typegoose/-/typegoose-5.2.1.tgz#cbc74f3c6dffeade73494d8f946b3b2d987cc83a"
+"typegoose@file:../../../git/typegoose":
+  version "5.4.0"
   dependencies:
-    lodash "4.17.10"
+    lodash "4.17.11"
+    mongoose "^5.2.15"
+    reflect-metadata "^0.1.12"
 
 typescript@3.0.3:
   version "3.0.3"

@@ -14,6 +14,7 @@ import {
     All,
     Req,
     Res,
+    Logger,
 } from '@nestjs/common';
 import {
     ApiBadRequestResponse,
@@ -28,6 +29,9 @@ import { isArray, map } from 'lodash';
 import { ApiException } from '../shared/api-exception.model';
 import { ProxyOpenhabGateway } from './proxy-openhab.gateway';
 
+const logger = Logger;
+const CLASSNAME = 'ProxyOpenhabController';
+
 @Controller()
 export class ProxyOpenhabController {
     constructor(private requestTracker: RequestTracker,
@@ -39,7 +43,7 @@ export class ProxyOpenhabController {
     @ApiCreatedResponse({ type: String })
     @ApiBadRequestResponse({ type: ApiException })
     async allRest(@Req() req, @Res() res, @Body() params: any): Promise<any> {
-        this.emitRequest(res, req);
+        this.emitRequest(req, res);
         return 'hello from rest';
     }
 
@@ -47,6 +51,7 @@ export class ProxyOpenhabController {
         const requestId = this.requestTracker.acquireRequestId();
         // make a local copy of request headers to modify
         const requestHeaders = req.headers;
+        logger.log(JSON.stringify(requestHeaders, null, 2), CLASSNAME);
         // We need to remove and modify some headers here
         delete requestHeaders['cookie'];
         delete requestHeaders['cookie2'];

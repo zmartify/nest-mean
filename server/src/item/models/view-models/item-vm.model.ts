@@ -1,8 +1,8 @@
 import { ApiModelProperty } from '@nestjs/swagger';
 import { BaseModelVm } from 'shared/base.model';
-import { Ref } from 'typegoose';
+import { Ref } from '@aljazerzen/typegoose';
 import { Openhab } from 'openhab/models/openhab.model';
-import { States } from '../item';
+import { States } from '../item.model';
 
 export class ItemVm extends BaseModelVm {
     @ApiModelProperty() openhab: Ref<Openhab>;      // openHAB this item belongs to

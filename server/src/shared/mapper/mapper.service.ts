@@ -20,7 +20,7 @@ export class MapperService {
             .forSourceMember('_id', opts => opts.ignored())
             .forSourceMember('password', opts => opts.ignore());
 
-        ['Account', 'Event', 'Todo', 'AccessLog', 'OpenhabAccessLog', 'Openhab'].forEach(myModel => {
+        ['Account', 'Event', 'Item', 'Todo', 'AccessLog', 'OpenhabAccessLog', 'Openhab'].forEach(myModel => {
             config.createMap(myModel, myModel + 'Vm').forSourceMember('_id', opts => opts.ignore());
         });
     }

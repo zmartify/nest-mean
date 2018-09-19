@@ -1,7 +1,7 @@
 import { forwardRef, HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { compare, genSalt, hash } from 'bcryptjs';
-import { ModelType } from 'typegoose';
+import { ModelType } from '@aljazerzen/typegoose';
 import { AuthService } from '../shared/auth/auth.service';
 import { JwtPayload } from '../shared/auth/jwt-payload.model';
 import { BaseService } from '../shared/base.service';

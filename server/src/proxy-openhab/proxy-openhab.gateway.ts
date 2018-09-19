@@ -17,6 +17,7 @@ import { EventColor, OpenhabStatus } from '../shared/enums';
 import { Logger, UseInterceptors, UsePipes } from '@nestjs/common';
 import { ProxyOpenhabInterceptor } from './proxy-openhab.interceptor';
 import { ProxyOpenhabHandshakePipe } from './proxy-openhab.handshake.pipe';
+import { ItemService } from 'item/item.service';
 
 const logger = Logger;
 
@@ -34,6 +35,7 @@ export class ProxyOpenhabGateway implements OnGatewayInit, OnGatewayConnection, 
 
     constructor(
         private _configurationService: ConfigurationService,
+        private _itemService: ItemService,
         private _eventService: EventService,
         private _openhabService: OpenhabService,
         private _openhabAccessLogService: OpenhabAccessLogService) {
@@ -101,18 +103,61 @@ export class ProxyOpenhabGateway implements OnGatewayInit, OnGatewayConnection, 
                 ') is too big or null, ignoring update', CLASSNAME);
             return;
         }
+
+        let openhab: any = {};
         try {
-            const openhab = await this._openhabService.findById(client.openhabId);
+            openhab = await this._openhabService.findById(client.openhabId);
             if (!openhab) {
-                logger.log('openHAB-cloud: Unable to find openHAB for itemUpdate: openHAB doesn\'t exist', CLASSNAME);
+                logger.log('Unable to find openHAB for itemUpdate: openHAB doesn\'t exist', CLASSNAME);
                 return;
             }
         } catch (error) {
-            logger.warn('openHAB-cloud: Unable to find openHAB for itemUpdate: ' + error);
+            logger.warn('Unable to find openHAB for itemUpdate: ' + error, CLASSNAME);
             return;
         }
 
-        logger.log('itemupdate ' + client.id, CLASSNAME);
+        let itemToUpdate: any = {};
+        try {
+            itemToUpdate = await this._itemService.findOne({
+                openhab: openhab.id,
+                name: itemName,
+            });
+
+            // If no item found for this openhab with this name, create a new one
+            if (!itemToUpdate) {
+                logger.log('Item ' + itemName + ' for openHAB ' + openhab.uuid + ' not found, creating new one', CLASSNAME);
+                itemToUpdate = await this._itemService.createItem({
+                    openhab: openhab.id,
+                    name: itemName,
+                    status: '',
+                });
+            }
+        } catch (error) {
+            if (error) {
+                logger.warn('openHAB-cloud: Unable to find item for itemUpdate: ' + error);
+            }
+            return;
+        }
+
+        // If item status changed, update item and create new item status change event
+        if (itemToUpdate.status !== itemStatus) {
+            try {
+                // Update previous status value
+                itemToUpdate.prev_status = itemToUpdate.status;
+                // Set new status value
+                itemToUpdate.status = itemStatus;
+                // Set last update timestamp to current time
+                itemToUpdate.last_update = new Date();
+                // Save the updated item
+                const updated = await this._itemService.update(itemToUpdate.id, itemToUpdate);
+                logger.log('Item updated = ' + itemStatus, CLASSNAME);
+            } catch (error) {
+                if (error) {
+                    logger.warn('Unable to update item for itemUpdate: ' + error, CLASSNAME);
+                }
+                return;
+            }
+        }
     }
 
     @SubscribeMessage('updateconfig') updateConfig(client, data): WsResponse<void> {
@@ -133,7 +178,7 @@ export class ProxyOpenhabGateway implements OnGatewayInit, OnGatewayConnection, 
         const secret = client.handshake.headers.secret;
         const openhabVersion = client.handshake.headers.openhabversion;
         const clientVersion = client.handshake.headers.clientversion;
-        logger.log('Id: ' + client.id, CLASSNAME);
+
         logger.log('Incoming openHAB connection for uuid ' + uuid, CLASSNAME);
 
         // Remove openHAB from offline array if needed
@@ -207,8 +252,6 @@ export class ProxyOpenhabGateway implements OnGatewayInit, OnGatewayConnection, 
 
     async handleDisconnect(client) {
         const uuid = client.handshake.headers.uuid;
-        logger.log('Disconnect uuid: ' + uuid, CLASSNAME);
-
         try {
             const openhab = await this._openhabService.findOne({ uuid });
             this.offlineOpenhabs[openhab.uuid] = Date.now();
@@ -216,6 +259,5 @@ export class ProxyOpenhabGateway implements OnGatewayInit, OnGatewayConnection, 
         } catch (error) {
             logger.error('Disconnect: Client ' + uuid + ' not found', CLASSNAME);
         }
-
     }
 }

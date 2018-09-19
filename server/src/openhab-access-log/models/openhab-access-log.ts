@@ -1,5 +1,5 @@
 import { Openhab } from 'openhab/models/openhab.model';
-import { InstanceType, ModelType, pre, prop, Typegoose, arrayProp, Ref } from 'typegoose';
+import { InstanceType, ModelType, pre, prop, Typegoose, arrayProp, Ref } from '@aljazerzen/typegoose';
 import { schemaOptions } from 'shared/base.model';
 
 @pre<OpenhabAccessLog>('findOneAndUpdate', function(next) {

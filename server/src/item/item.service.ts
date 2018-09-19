@@ -1,14 +1,10 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { ModelType } from 'typegoose';
+import { ModelType } from '@aljazerzen/typegoose';
 import { BaseService } from 'shared/base.service';
 import { MapperService } from 'shared/mapper/mapper.service';
-import { Item, ItemModel } from './models/item';
+import { Item, ItemModel } from './models/item.model';
 import { ItemParams } from './models/view-models/item-params.model';
-
-export const GoodColor = '#e0f0d5';
-export const BadColor = '#f1dede';
-export const InfoColor = '#daedf8';
 
 @Injectable()
 export class ItemService extends BaseService<Item> {
@@ -22,12 +18,14 @@ export class ItemService extends BaseService<Item> {
     }
 
     async createItem(params: ItemParams): Promise<Item> {
-        const { openhab, name } = params;
+        const { openhab, name, status } = params;
 
         const newItem = new ItemModel();
 
         newItem.openhab = openhab;
         newItem.name = name;
+        newItem.last_change = new Date();
+        newItem.status = status;
 
         try {
             const result = await this.create(newItem);

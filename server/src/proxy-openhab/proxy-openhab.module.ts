@@ -5,9 +5,10 @@ import { ProxyOpenhabController } from './proxy-openhab.controller';
 import { ProxyOpenhabGateway } from './proxy-openhab.gateway';
 import { RequestTracker } from './request-tracker.service';
 import { OpenhabAccessLogModule } from 'openhab-access-log/openhab-access-log.module';
+import { ItemModule } from 'item/item.module';
 
 @Module({
-    imports: [EventModule, OpenhabAccessLogModule, OpenhabModule],
+    imports: [EventModule, ItemModule, OpenhabAccessLogModule, OpenhabModule],
     controllers: [ProxyOpenhabController],
     providers: [ProxyOpenhabGateway, RequestTracker],
     exports: [ProxyOpenhabGateway],
