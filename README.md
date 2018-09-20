@@ -1,4 +1,4 @@
-# NestJS Tutorial Repository
+# Zmartify-Cloud
 
 Repository will be separated into `server` and `client` directory for **NestJS** backend and **Angular** frontend resepctively. 
 
