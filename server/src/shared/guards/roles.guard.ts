@@ -1,8 +1,10 @@
-import { CanActivate, ExecutionContext, HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { CanActivate, ExecutionContext, HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { InstanceType } from '@aljazerzen/typegoose';
 import { UserRole } from '../../user/models/user-role.enum';
 import { User } from '../../user/models/user.model';
+
+const logger = Logger;
 
 @Injectable()
 export class RolesGuard implements CanActivate {
@@ -16,6 +18,7 @@ export class RolesGuard implements CanActivate {
         }
 
         const request = context.switchToHttp().getRequest();
+
         const user: InstanceType<User> = request.user;
 
         const hasRole = () => roles.indexOf(user.role) >= 0;

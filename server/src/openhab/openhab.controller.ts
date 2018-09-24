@@ -10,6 +10,7 @@ import {
     Post,
     Put,
     Query,
+    Logger,
 } from '@nestjs/common';
 import {
     ApiBadRequestResponse,
@@ -30,6 +31,8 @@ import { OpenhabParams } from './models/view-models/openhab-params.model';
 import { Openhab } from './models/openhab.model';
 import { OpenhabStatus } from 'shared/enums/openhab-status.enum';
 import { OpenhabService } from './openhab.service';
+
+const logger = Logger;
 
 @Controller('openhabs')
 @ApiUseTags(Openhab.modelName)
@@ -62,8 +65,7 @@ export class OpenhabController {
     @ApiImplicitQuery({ name: 'isCompleted', required: false })
     async get(
         @Query('status') status?: OpenhabStatus,
-        @Query('online', new ToBooleanPipe())
-            online?: boolean,
+        @Query('online', new ToBooleanPipe()) online?: boolean,
     ): Promise<OpenhabVm[]> {
         let filter = {};
 
@@ -78,6 +80,8 @@ export class OpenhabController {
                 filter['online'] = online;
             }
         }
+
+        logger.log('Filter: ' + JSON.stringify(filter, null, 2));
 
         try {
             const openhabs = await this._openhabService.findAll(filter);

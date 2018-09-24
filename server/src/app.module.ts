@@ -7,13 +7,18 @@ import { ConfigurationService } from './shared/configuration/configuration.servi
 import { SharedModule } from './shared/shared.module';
 import { UserModule } from './user/user.module';
 import { ProxyOpenhabModule } from 'proxy-openhab/proxy-openhab.module';
+import { OpenhabModule } from 'openhab/openhab.module';
+import { AccountModule } from 'account/account.module';
+import { EventModule } from 'event/event.module';
+import { ItemModule } from 'item/item.module';
+import { OpenhabAccessLogModule } from 'openhab-access-log/openhab-access-log.module';
 
 @Module({
     imports: [SharedModule, MongooseModule.forRoot(ConfigurationService.connectionString, {
         retryDelay: 500,
         retryAttempts: 3,
         useNewUrlParser: true,
-    }), UserModule, ProxyOpenhabModule],
+    }), UserModule, ProxyOpenhabModule ],
     controllers: [AppController],
     providers: [AppService],
 })

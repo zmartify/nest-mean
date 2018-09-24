@@ -2,7 +2,7 @@
 
 ## Description
 
-Nest MEAN Server
+Zmartify Cloud server
 
 ## Installation
 

@@ -15,7 +15,7 @@ import { EventService } from 'event/event.service';
 import { ConfigurationService } from '../shared/configuration/configuration.service';
 import { EventColor, OpenhabStatus } from '../shared/enums';
 import { Logger, UseInterceptors, UsePipes } from '@nestjs/common';
-import { ProxyOpenhabInterceptor } from './proxy-openhab.interceptor';
+import { ProxyOpenhabGWInterceptor } from './proxy-openhab.gw.interceptor';
 import { ProxyOpenhabHandshakePipe } from './proxy-openhab.handshake.pipe';
 import { ItemService } from 'item/item.service';
 
@@ -23,7 +23,7 @@ const logger = Logger;
 
 const CLASSNAME = 'ProxyOpenhabGateway';
 
-@UseInterceptors(ProxyOpenhabInterceptor)
+@UseInterceptors(ProxyOpenhabGWInterceptor)
 // @UsePipes(new ProxyOpenhabHandshakePipe())
 @WebSocketGateway()
 export class ProxyOpenhabGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
@@ -255,6 +255,16 @@ export class ProxyOpenhabGateway implements OnGatewayInit, OnGatewayConnection, 
         try {
             const openhab = await this._openhabService.findOne({ uuid });
             this.offlineOpenhabs[openhab.uuid] = Date.now();
+            if (openhab) {
+                openhab.status = OpenhabStatus.Offline;
+                openhab.save((error) => {
+                    if (error) {
+                        logger.error('Error saving openhab: ' + error, CLASSNAME);
+                    }
+                });
+            } else {
+                logger.warn('Disconnected client: ' + uuid + ' doesn\'t exist', CLASSNAME);
+            }
             logger.log('Disconnected ' + openhab.uuid, CLASSNAME);
         } catch (error) {
             logger.error('Disconnect: Client ' + uuid + ' not found', CLASSNAME);

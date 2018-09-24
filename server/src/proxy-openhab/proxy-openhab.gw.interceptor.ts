@@ -13,7 +13,7 @@ const logger = Logger;
 const CLASSNAME = 'ProxyOpenhabInterceptor';
 
 @Injectable()
-export class ProxyOpenhabInterceptor<T> implements NestInterceptor {
+export class ProxyOpenhabGWInterceptor<T> implements NestInterceptor {
 
     constructor(private _openhabService: OpenhabService) {
     }
@@ -21,9 +21,11 @@ export class ProxyOpenhabInterceptor<T> implements NestInterceptor {
         context: ExecutionContext,
         call$: Observable<any>,
     ): Observable<any> {
-        const client = context.getArgByIndex(0);
+        const client = context.switchToWs().getClient();
         const handshakeData = client.handshake;
+
         logger.log('Authorizing incoming openHAB connection', CLASSNAME);
+
         handshakeData.uuid = handshakeData.query['uuid'];
         handshakeData.openhabVersion = handshakeData.query['openhabVersion'];
         handshakeData.clientVersion = handshakeData.query['clientVersion'];

@@ -1,3 +1,4 @@
+import { ProxyOpenhabCtrlInterceptor } from './proxy-openhab.ctrl.interceptor';
 import { RequestTracker } from './request-tracker.service';
 import {
     Body,
@@ -15,6 +16,8 @@ import {
     Req,
     Res,
     Logger,
+    UseInterceptors,
+    UseGuards,
 } from '@nestjs/common';
 import {
     ApiBadRequestResponse,
@@ -28,22 +31,29 @@ import {
 import { isArray, map } from 'lodash';
 import { ApiException } from '../shared/api-exception.model';
 import { ProxyOpenhabGateway } from './proxy-openhab.gateway';
+import { UserRole } from 'user/models/user-role.enum';
+import { Roles } from 'shared/decorators/roles.decorator';
+import { AuthGuard } from '@nestjs/passport';
+import { RolesGuard } from 'shared/guards/roles.guard';
 
 const logger = Logger;
 const CLASSNAME = 'ProxyOpenhabController';
 
+@UseInterceptors(ProxyOpenhabCtrlInterceptor)
 @Controller()
 export class ProxyOpenhabController {
     constructor(private requestTracker: RequestTracker,
                 private gateway: ProxyOpenhabGateway) { }
 
     @All('rest*')
-    // @Roles(UserRole.Admin)
-    // @UseGuards(AuthGuard('jwt'), RolesGuard)
+    @Roles(UserRole.Admin, UserRole.User)
+    @UseGuards(AuthGuard('jwt'), RolesGuard)
     @ApiCreatedResponse({ type: String })
     @ApiBadRequestResponse({ type: ApiException })
     async allRest(@Req() req, @Res() res, @Body() params: any): Promise<any> {
-        this.emitRequest(req, res);
+
+        // this.emitRequest(req, res);
+
         return 'hello from rest';
     }
 

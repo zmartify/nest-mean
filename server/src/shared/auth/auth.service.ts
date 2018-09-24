@@ -1,10 +1,13 @@
-import { forwardRef, Inject, Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable, Logger, Query } from '@nestjs/common';
 import { sign, SignOptions } from 'jsonwebtoken';
 import { User } from '../../user/models/user.model';
 import { UserService } from '../../user/user.service';
 import { Configuration } from '../configuration/configuration.enum';
 import { ConfigurationService } from '../configuration/configuration.service';
 import { JwtPayload } from './jwt-payload.model';
+import { ApiImplicitQuery } from '@nestjs/swagger';
+
+const logger = Logger;
 
 @Injectable()
 export class AuthService {

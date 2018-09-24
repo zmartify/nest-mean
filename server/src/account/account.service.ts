@@ -3,17 +3,17 @@ import { InjectModel } from '@nestjs/mongoose';
 import { ModelType } from '@aljazerzen/typegoose';
 import { BaseService } from 'shared/base.service';
 import { MapperService } from 'shared/mapper/mapper.service';
-import { Account, AccountModel } from './models/account';
+import { Account, AccountModel } from './models/account.model';
 import { AccountParams } from './models/view-models/account-params.model';
 
 @Injectable()
 export class AccountService extends BaseService<Account> {
     constructor(
-        @InjectModel(Account.modelName) private readonly _todoModel: ModelType<Account>,
+        @InjectModel(Account.modelName) private readonly _accountModel: ModelType<Account>,
         private readonly _mapperService: MapperService,
     ) {
         super();
-        this._model = _todoModel;
+        this._model = _accountModel;
         this._mapper = _mapperService.mapper;
     }
 

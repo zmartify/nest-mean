@@ -30,7 +30,7 @@ import { EventService } from './event.service';
 import { Ref } from '@aljazerzen/typegoose';
 import { Openhab } from 'openhab/models/openhab.model';
 import { EventParams } from './models/view-models/event-params.model';
-import { Event } from './models/event';
+import { Event } from './models/event.model';
 
 @Controller('events')
 @ApiUseTags(Event.modelName)

@@ -10,6 +10,7 @@ import {
     Post,
     Put,
     Query,
+    Logger,
 } from '@nestjs/common';
 import {
     ApiBadRequestResponse,
@@ -26,16 +27,24 @@ import { ToBooleanPipe } from 'shared/pipes/to-boolean.pipe';
 import { EnumToArray } from 'shared/utilities/enum-to-array.helper';
 import { GetOperationId } from 'shared/utilities/get-operation-id.helper';
 import { AccountLevel } from './models/account-level.enum';
-import { Account } from './models/account';
+import { Account } from './models/account.model';
 import { AccountParams } from './models/view-models/account-params.model';
 import { AccountVm } from './models/view-models/account-vm.model';
 import { AccountService } from './account.service';
+import { UserService } from 'user/user.service';
+import { OpenhabService } from 'openhab/openhab.service';
+import { Types } from 'mongoose';
+
+const logger = Logger;
 
 @Controller('accounts')
 @ApiUseTags(Account.modelName)
 @ApiBearerAuth()
 export class AccountController {
-    constructor(private readonly _accountService: AccountService) {}
+    constructor(
+        private readonly _accountService: AccountService,
+        private readonly _userService: UserService,
+        private readonly _openhabService: OpenhabService) { }
 
     @Post()
     // @Roles(UserRole.Admin)
@@ -63,7 +72,7 @@ export class AccountController {
     async get(
         @Query('level') level?: AccountLevel,
         @Query('isActive', new ToBooleanPipe())
-            isActive?: boolean,
+        isActive?: boolean,
     ): Promise<AccountVm[]> {
         let filter = {};
 
@@ -136,4 +145,159 @@ export class AccountController {
             throw new InternalServerErrorException(e);
         }
     }
+
+    @Post(':accountid/users/:userid')
+    // @Roles(UserRole.Admin)
+    // @UseGuards(AuthGuard('jwt'), RolesGuard)
+    @ApiCreatedResponse({ type: AccountVm })
+    @ApiBadRequestResponse({ type: ApiException })
+    @ApiOperation(GetOperationId(Account.modelName, 'AddUser'))
+    async addUser(@Param('accountid') accountId: string, @Param('userid') userId: string): Promise<AccountVm> {
+        if (!accountId || !userId) {
+            throw new HttpException('Missing parameters', HttpStatus.BAD_REQUEST);
+        }
+
+        // Ensure account exist
+        const accountExist = await this._accountService.findById(accountId);
+
+        if (!accountExist) {
+            throw new HttpException(`account ${accountId} Not found`, HttpStatus.NOT_FOUND);
+        }
+
+        // Ensure user exist
+        const userExist = await this._userService.findById(userId);
+
+        if (!userExist) {
+            throw new HttpException(`user ${userId} Not found`, HttpStatus.NOT_FOUND);
+        }
+
+        if (accountExist.users.find(user => (user.toString() === userId))) {
+            throw new HttpException(`user ${userId} already exist on account ${accountId}`, HttpStatus.CONFLICT);
+        }
+
+        accountExist.users.push(Types.ObjectId(userId));
+
+        try {
+            const updated = await this._accountService.update(accountId, accountExist);
+            return this._accountService.map<AccountVm>(updated.toJSON());
+        } catch (e) {
+            throw new HttpException(e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @Delete(':accountid/users/:userid')
+    // @Roles(UserRole.Admin)
+    // @UseGuards(AuthGuard('jwt'), RolesGuard)
+    @ApiCreatedResponse({ type: AccountVm })
+    @ApiBadRequestResponse({ type: ApiException })
+    @ApiOperation(GetOperationId(Account.modelName, 'RemoveUser'))
+    async removeUser(@Param('accountid') accountId: string, @Param('userid') userId: string): Promise<AccountVm> {
+        if (!accountId || !userId) {
+            throw new HttpException('Missing parameters', HttpStatus.BAD_REQUEST);
+        }
+
+        // Ensure account exist
+        const accountExist = await this._accountService.findById(accountId);
+
+        if (!accountExist) {
+            throw new HttpException(`account ${accountId} Not found`, HttpStatus.NOT_FOUND);
+        }
+
+        // Remove user if exists on account
+        let userDeleted = false;
+
+        accountExist.users.forEach((user, index) => {
+            if (user.toString() === userId) {
+                accountExist.users.splice(index);
+                userDeleted = true;
+            }
+        });
+
+        if (!userDeleted) throw new HttpException(`user ${userId} does not exist on account ${accountId}`, HttpStatus.CONFLICT);
+
+        try {
+            const updated = await this._accountService.update(accountId, accountExist);
+            return this._accountService.map<AccountVm>(updated.toJSON());
+        } catch (e) {
+            throw new HttpException(e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @Post(':accountid/openhabs/:openhabid')
+    // @Roles(UserRole.Admin)
+    // @UseGuards(AuthGuard('jwt'), RolesGuard)
+    @ApiCreatedResponse({ type: AccountVm })
+    @ApiBadRequestResponse({ type: ApiException })
+    @ApiOperation(GetOperationId(Account.modelName, 'AddOpenhab'))
+    async addOpenhab(@Param('accountid') accountId: string, @Param('openhabid') openhabId: string): Promise<AccountVm> {
+        if (!accountId || !openhabId) {
+            throw new HttpException('Missing parameters', HttpStatus.BAD_REQUEST);
+        }
+
+        // Ensure account exist
+        const accountExist = await this._accountService.findById(accountId);
+
+        if (!accountExist) {
+            throw new HttpException(`account ${accountId} Not found`, HttpStatus.NOT_FOUND);
+        }
+
+        // Ensure openhab exist
+        const openhabExist = await this._openhabService.findById(openhabId);
+
+        if (!openhabExist) {
+            throw new HttpException(`openhab ${openhabId} Not found`, HttpStatus.NOT_FOUND);
+        }
+
+        if (accountExist.openhabs.find(openhab => (openhab.toString() === openhabId))) {
+            throw new HttpException(`openhab ${openhabId} already exist on account ${accountId}`, HttpStatus.CONFLICT);
+        }
+
+        accountExist.openhabs.push(Types.ObjectId(openhabId));
+
+        try {
+            const updated = await this._accountService.update(accountId, accountExist);
+            return this._accountService.map<AccountVm>(updated.toJSON());
+        } catch (e) {
+            throw new HttpException(e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @Delete(':accountid/openhabs/:openhabid')
+    // @Roles(UserRole.Admin)
+    // @UseGuards(AuthGuard('jwt'), RolesGuard)
+    @ApiCreatedResponse({ type: AccountVm })
+    @ApiBadRequestResponse({ type: ApiException })
+    @ApiOperation(GetOperationId(Account.modelName, 'RemoveOpenhab'))
+    async removeOpenhab(@Param('accountid') accountId: string, @Param('openhabid') openhabId: string): Promise<AccountVm> {
+        if (!accountId || !openhabId) {
+            throw new HttpException('Missing parameters', HttpStatus.BAD_REQUEST);
+        }
+
+        // Ensure account exist
+        const accountExist = await this._accountService.findById(accountId);
+
+        if (!accountExist) {
+            throw new HttpException(`account ${accountId} Not found`, HttpStatus.NOT_FOUND);
+        }
+
+        // Remove user if exists on account
+        let openhabRemoved = false;
+
+        accountExist.openhabs.forEach((openhab, index) => {
+            if (openhab.toString() === openhabId) {
+                accountExist.openhabs.splice(index);
+                openhabRemoved = true;
+            }
+        });
+
+        if (!openhabRemoved) throw new HttpException(`openhab ${openhabId} does not exist on account ${accountId}`, HttpStatus.CONFLICT);
+
+        try {
+            const updated = await this._accountService.update(accountId, accountExist);
+            return this._accountService.map<AccountVm>(updated.toJSON());
+        } catch (e) {
+            throw new HttpException(e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 }

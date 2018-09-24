@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { ModelType } from '@aljazerzen/typegoose';
 import { BaseService } from 'shared/base.service';
 import { MapperService } from 'shared/mapper/mapper.service';
-import { Event, EventModel } from './models/event';
+import { Event, EventModel } from './models/event.model';
 import { EventParams } from './models/view-models/event-params.model';
 
 export const GoodColor = '#e0f0d5';

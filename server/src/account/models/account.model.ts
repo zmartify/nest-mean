@@ -1,5 +1,5 @@
-import { Openhab } from './../../openhab/models/openhab.model';
-import { InstanceType, ModelType, pre, prop, Typegoose, arrayProp, Ref } from '@aljazerzen/typegoose';
+import { Openhab } from 'openhab/models/openhab.model';
+import { InstanceType, ModelType, pre, prop, Typegoose, arrayProp, Ref, index } from '@aljazerzen/typegoose';
 import { schemaOptions } from 'shared/base.model';
 import { AccountLevel } from './account-level.enum';
 import { User } from 'user/models/user.model';
@@ -8,6 +8,10 @@ import { User } from 'user/models/user.model';
     this._update.updatedAt = new Date(Date.now());
     next();
 })
+@index({ name: 1, users: 2 })
+@index({ level: 1, name: 2 })
+@index({ openhabs: 1 })
+@index({ users: 1 })
 export class Account extends Typegoose {
     @prop({ required: [true, 'Name is required'] })
     name: string;
@@ -15,7 +19,7 @@ export class Account extends Typegoose {
     level: AccountLevel;
     @arrayProp({ itemsRef: Openhab })
     openhabs: Ref<Openhab>[];
-    @arrayProp({ itemsRef: User})
+    @arrayProp({ itemsRef: User })
     users: Ref<User>[];
     @prop({ default: false })
     isActive: boolean;
